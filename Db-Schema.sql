@@ -32,6 +32,9 @@ CREATE TABLE OrderDetail
 );
 GO
 
+CREATE INDEX idx_OrderDetail
+ON OrderDetail(OrderDetailId, ItemId, OrderId, Quantity);
+
 CREATE TABLE ToOrder
 (
 	OrderId INT PRIMARY KEY NOT NULL REFERENCES OrderDetail(OrderDetailId),
@@ -70,4 +73,8 @@ CREATE TABLE Payment
 );
 GO
 
-SELECT*FROM Customer
+CREATE INDEX idx_Payment
+ON Payment(PaymentId, PaymentDate, Amount, PaymentType);
+
+SELECT*FROM Payment
+
