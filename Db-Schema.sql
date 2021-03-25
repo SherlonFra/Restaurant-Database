@@ -1,8 +1,9 @@
-
+--Name of Restaurant DataBase
 CREATE DATABASE RestaurantManager
 
 USE Sherlon;
 
+--Schema Name for Restaurant System
 CREATE SCHEMA Restaurant;
 GO
 
@@ -55,6 +56,24 @@ CREATE TABLE Customer
 );
 GO
 
+ALTER TABLE Customer
+	ADD CONSTRAINT CHK_CustomerStatus
+	CHECK (CustomerStatus = 'Regular' OR CustomerStatus = 'Premium');
+GO
+
+ALTER TABLE Customer
+	ADD CONSTRAINT CHK_CustomerDiscount
+	CHECK (Discount = 0 OR Discount = 10);
+GO
+
+SELECT Discount, CASE
+	WHEN Discount = 0 THEN 'Regular'
+	WHEN Discount = 10 THEN 'Premium'
+	ELSE 'This discount is not available'
+	END AS CustomerStatus
+FROM Customer
+GO
+
 CREATE TABLE Menu
 (
 	ItemId INT PRIMARY KEY NOT NULL REFERENCES OrderDetail(OrderdetailId),
@@ -73,8 +92,37 @@ CREATE TABLE Payment
 );
 GO
 
+
 CREATE INDEX idx_Payment
 ON Payment(PaymentId, PaymentDate, Amount, PaymentType);
+GO
 
-SELECT*FROM Payment
+--This procedure was created to join some attributes from the Customer, Payment and ToOrder Tables
+--Drop procedure OrderpaymentbycustomerId
+CREATE PROCEDURE OrderpaymentbycustomerId
+AS
+BEGIN
+	SELECT c.TelephoneNumber, c.FirstName, c.LastName, p.PaymentDate, p.Amount, t.OrderId
+	FROM Customer c
+	JOIN ToOrder t
+		ON c.TelephoneNumber=t.TelephoneNumber
+	JOIN Payment p
+		ON p.PaymentId = t.PaymentId;
+END
+GO
 
+--EXEC OrderpaymentbycustomerId
+
+CREATE PROCEDURE CustDeliveryAreaCode
+AS
+BEGIN
+	SELECT c.FirstName, c.LastName, a.Areacode, a.AreaName, d.DeliveryBoyId, d.FirstName, d.LastName
+	FROM Customer c
+	JOIN AreaCodeField a
+		ON c.AreaCode = a.AreaCode
+	JOIN DeliveryBoy d
+		ON d.DeliveryAreaCode = a.AreaCode;
+END
+GO
+
+--EXEC CustDeliveryAreaCode
