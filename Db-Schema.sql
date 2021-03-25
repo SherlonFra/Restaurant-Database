@@ -32,7 +32,7 @@ CREATE TABLE OrderDetail
 	Quantity INT NOT NULL
 );
 GO
-
+--Index for OrderDetail Table
 CREATE INDEX idx_OrderDetail
 ON OrderDetail(OrderDetailId, ItemId, OrderId, Quantity);
 
@@ -55,7 +55,7 @@ CREATE TABLE Customer
 	Discount INT NOT NULL
 );
 GO
-
+--Checks adding special constraints for CustomerStatus and CostomerDiscount
 ALTER TABLE Customer
 	ADD CONSTRAINT CHK_CustomerStatus
 	CHECK (CustomerStatus = 'Regular' OR CustomerStatus = 'Premium');
@@ -65,7 +65,7 @@ ALTER TABLE Customer
 	ADD CONSTRAINT CHK_CustomerDiscount
 	CHECK (Discount = 0 OR Discount = 10);
 GO
-
+--WHEN ELSE statements for discount is 0 or 10
 SELECT Discount, CASE
 	WHEN Discount = 0 THEN 'Regular'
 	WHEN Discount = 10 THEN 'Premium'
