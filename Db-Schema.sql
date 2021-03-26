@@ -1,67 +1,102 @@
---Name of Restaurant DataBase
+DROP DATABASE IF EXISTS RestaurantManager;
 CREATE DATABASE RestaurantManager
 
-USE Sherlon;
+USE RestaurantManager;
+GO
 
 --Schema Name for Restaurant System
 CREATE SCHEMA Restaurant;
 GO
 
-CREATE TABLE DeliveryBoy
+--DROP TABLE IF EXISTS Restaurant.AreaCodeField;
+--SELECT*FROM Restaurant.AreaCodeField
+CREATE TABLE Restaurant.AreaCodeField
+(
+	AreaCode VARCHAR(10) PRIMARY KEY NOT NULL,
+	AreaName VARCHAR(200) NOT NULL
+);
+GO
+--DROP TABLE IF EXISTS Restaurant.DeliveryBoy
+--SELECT*FROM Restaurant.DeliveryBoy
+CREATE TABLE Restaurant.DeliveryBoy
 (
 	DeliveryBoyId INT PRIMARY KEY NOT NULL,
 	FirstName VARCHAR(30) NOT NULL,
 	LastName VARCHAR(30) NOT NULL,
-	DeliveryAreaCode INT NOT NULL
+	DeliveryAreaCode VARCHAR(10) NOT NULL REFERENCES Restaurant.AreaCodeField(AreaCode)
 );
 GO
 
-CREATE TABLE AreaCodeField
+--SELECT*FROM Restaurant.Customer
+--DROP TABLE IF EXISTS Restaurant.Customer
+CREATE TABLE Restaurant.Customer
 (
-	AreaCode INT PRIMARY KEY NOT NULL REFERENCES DeliveryBoy(DeliveryBoyId),
-	AreaName VARCHAR(200) NOT NULL
-);
-GO
-
-
-CREATE TABLE OrderDetail
-(
-	OrderDetailId INT PRIMARY KEY NOT NULL,
-	ItemId INT NOT NULL,
-	OrderId INT NOT NULL UNIQUE,
-	Quantity INT NOT NULL
-);
-GO
---Index for OrderDetail Table
-CREATE INDEX idx_OrderDetail
-ON OrderDetail(OrderDetailId, ItemId, OrderId, Quantity);
-
-CREATE TABLE ToOrder
-(
-	OrderId INT PRIMARY KEY NOT NULL REFERENCES OrderDetail(OrderDetailId),
-    TelephoneNumber INT NOT NULL,
-	PaymentId INT NOT NULL
-);
-GO
-
-CREATE TABLE Customer
-(
-	TelephoneNumber INT PRIMARY KEY NOT NULL REFERENCES ToOrder(OrderId),
+	CustomerId INT PRIMARY KEY IDENTITY(1,1) NOT NULL,
+	TelephoneNumber VARCHAR(10) NOT NULL,
 	FirstName VARCHAR(30) NOT NULL,
 	LastName VARCHAR(30) NOT NULL,
-	AreaCode INT NOT NULL REFERENCES AreaCodeField(AreaCode),
-	OrderLocation VARCHAR(10) NOT NULL,
+	AreaCode VARCHAR(10) NOT NULL REFERENCES Restaurant.AreaCodeField(AreaCode),
+	OrderLocation VARCHAR(1000) NOT NULL,
 	CustomerStatus VARCHAR(10) NOT NULL,
 	Discount INT NOT NULL
 );
 GO
+
+--SELECT*FROM Restaurant.Payment
+CREATE TABLE Restaurant.Payment
+(
+	PaymentId INT PRIMARY KEY NOT NULL,
+	PaymentDate DATE NOT NULL,
+	Amount DECIMAL (5,2) NOT NULL,
+	PaymentType VARCHAR(20) NOT NULL
+);
+GO
+
+CREATE INDEX idx_PaymentRestaurant
+ON Restaurant.Payment(PaymentId, PaymentDate, Amount, PaymentType);
+GO
+
+--DROP TABLE IF EXISTS Restaurant.ToOrder
+--SELECT*FROM Restaurant.ToOrder
+CREATE TABLE Restaurant.ToOrder
+(
+	OrderId INT PRIMARY KEY NOT NULL,
+    CustomerId INT NOT NULL REFERENCES Restaurant.Customer (CustomerId),
+	PaymentId INT NOT NULL REFERENCES Restaurant.Payment(PaymentId)
+);
+GO
+
+--SELECT*FROM Restaurant.Menu
+CREATE TABLE Restaurant.Menu
+(
+	ItemId INT PRIMARY KEY NOT NULL,
+	FoodItemDesc VARCHAR (300) NOT NULL,
+	Price VARCHAR (5) NOT NULL
+);
+GO
+
+--DROP TABLE IF EXISTS Restaurant.OrderDetail
+--SELECT*FROM Restaurant.OrderDetail
+CREATE TABLE Restaurant.OrderDetail
+(
+	OrderDetailId INT PRIMARY KEY NOT NULL,
+	ItemId INT NOT NULL REFERENCES Restaurant.Menu (ItemId),
+	OrderId INT NOT NULL REFERENCES Restaurant.ToOrder(OrderId),
+	Quantity INT NOT NULL
+);
+GO
+
+CREATE INDEX idx_OrderDetailRestaurant
+ON Restaurant.OrderDetail(OrderDetailId, ItemId, OrderId, Quantity);
+
 --Checks adding special constraints for CustomerStatus and CostomerDiscount
-ALTER TABLE Customer
+ALTER TABLE Restaurant.Customer
 	ADD CONSTRAINT CHK_CustomerStatus
 	CHECK (CustomerStatus = 'Regular' OR CustomerStatus = 'Premium');
 GO
 
-ALTER TABLE Customer
+
+ALTER TABLE Restaurant.Customer
 	ADD CONSTRAINT CHK_CustomerDiscount
 	CHECK (Discount = 0 OR Discount = 10);
 GO
@@ -71,58 +106,41 @@ SELECT Discount, CASE
 	WHEN Discount = 10 THEN 'Premium'
 	ELSE 'This discount is not available'
 	END AS CustomerStatus
-FROM Customer
+FROM Restaurant.Customer
 GO
 
-CREATE TABLE Menu
-(
-	ItemId INT PRIMARY KEY NOT NULL REFERENCES OrderDetail(OrderdetailId),
-	FoodItemDesc VARCHAR (300) NOT NULL,
-	Price DECIMAL (3,2) NOT NULL
-);
-GO
-
-
-CREATE TABLE Payment
-(
-	PaymentId INT PRIMARY KEY NOT NULL REFERENCES ToOrder(OrderId),
-	PaymentDate DATE NOT NULL,
-	Amount DECIMAL (5,2) NOT NULL,
-	PaymentType VARCHAR(20) NOT NULL
-);
-GO
-
-
-CREATE INDEX idx_Payment
-ON Payment(PaymentId, PaymentDate, Amount, PaymentType);
-GO
 
 --This procedure was created to join some attributes from the Customer, Payment and ToOrder Tables
---Drop procedure OrderpaymentbycustomerId
-CREATE PROCEDURE OrderpaymentbycustomerId
+--Drop procedure Restaurant.OrderpaymentbycustomerId
+CREATE PROCEDURE Restaurant.OrderpaymentbycustomerId
 AS
 BEGIN
-	SELECT c.TelephoneNumber, c.FirstName, c.LastName, p.PaymentDate, p.Amount, t.OrderId
-	FROM Customer c
-	JOIN ToOrder t
-		ON c.TelephoneNumber=t.TelephoneNumber
-	JOIN Payment p
+	SELECT c.CustomerId, c.TelephoneNumber, c.FirstName, c.LastName, p.PaymentDate, p.Amount, t.OrderId
+	FROM Restaurant.Customer c
+	JOIN Restaurant.ToOrder t
+		ON c.CustomerId=t.CustomerId
+	JOIN Restaurant.Payment p
 		ON p.PaymentId = t.PaymentId;
 END
 GO
 
---EXEC OrderpaymentbycustomerId
+--EXEC Restaurant.OrderpaymentbycustomerId
+GO
 
-CREATE PROCEDURE CustDeliveryAreaCode
+CREATE PROCEDURE Restaurant.CustDeliveryAreaCode
 AS
 BEGIN
 	SELECT c.FirstName, c.LastName, a.Areacode, a.AreaName, d.DeliveryBoyId, d.FirstName, d.LastName
-	FROM Customer c
-	JOIN AreaCodeField a
+	FROM Restaurant.Customer c
+	JOIN Restaurant.AreaCodeField a
 		ON c.AreaCode = a.AreaCode
-	JOIN DeliveryBoy d
+	JOIN Restaurant.DeliveryBoy d
 		ON d.DeliveryAreaCode = a.AreaCode;
 END
 GO
 
---EXEC CustDeliveryAreaCode
+--EXEC Restaurant.CustDeliveryAreaCode
+
+CREATE 
+
+--SELECT*FROM INFORMATION_SCHEMA.TABLES;
