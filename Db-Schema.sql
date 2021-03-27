@@ -1,3 +1,5 @@
+USE master;
+
 DROP DATABASE IF EXISTS RestaurantManager;
 CREATE DATABASE RestaurantManager
 
@@ -140,7 +142,5 @@ END
 GO
 
 --EXEC Restaurant.CustDeliveryAreaCode
-
-CREATE 
 
 --SELECT*FROM INFORMATION_SCHEMA.TABLES;
