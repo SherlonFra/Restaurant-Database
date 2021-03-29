@@ -143,4 +143,22 @@ GO
 
 --EXEC Restaurant.CustDeliveryAreaCode
 
---SELECT*FROM INFORMATION_SCHEMA.TABLES;
+CREATE VIEW Restaurant.CustomerPremium AS 
+SELECT CustomerId, FirstName, LastName, CustomerStatus
+FROM Restaurant.Customer
+WHERE CustomerStatus = 'Premium';
+GO
+
+-- SELECT * FROM Restaurant.CustomerPremium
+
+CREATE VIEW Restaurant.CustomerRegular AS 
+SELECT CustomerId, FirstName, LastName, CustomerStatus
+FROM Restaurant.Customer
+WHERE CustomerStatus = 'Regular';
+GO
+
+--SELECT * FROM Restaurant.CustomerRegular
+
+
+
+
