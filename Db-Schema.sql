@@ -156,11 +156,3 @@ CREATE VIEW Restaurant.CustomerCode AS
 SELECT FirstName, LastName, TelephoneNumber, AreaCode
 FROM Restaurant.Customer
 GO
-
-
-
-
-
-
-
-
