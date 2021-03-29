@@ -159,6 +159,16 @@ GO
 
 --SELECT * FROM Restaurant.CustomerRegular
 
+CREATE VIEW Restaurant.CustomerCode AS 
+SELECT FirstName, LastName, TelephoneNumber, AreaCode
+FROM Restaurant.Customer
+GO
+
+--SELECT * FROM Restaurant.CustomerCode
+
+
+
+
 
 
 
