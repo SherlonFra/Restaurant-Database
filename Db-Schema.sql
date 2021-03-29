@@ -122,8 +122,6 @@ END
 GO
 
 
-GO
-
 CREATE PROCEDURE Restaurant.CustDeliveryAreaCode
 AS
 BEGIN
