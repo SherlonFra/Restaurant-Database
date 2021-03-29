@@ -1,7 +1,9 @@
 USE master;
+GO
 
 DROP DATABASE IF EXISTS RestaurantManager;
 CREATE DATABASE RestaurantManager
+GO
 
 USE RestaurantManager;
 GO
